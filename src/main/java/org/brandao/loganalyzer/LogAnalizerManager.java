@@ -1,8 +1,5 @@
 package org.brandao.loganalyzer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -12,15 +9,14 @@ public class LogAnalizerManager {
 
 	private Map<String, FileLogAnalyzer> logs;
 	
-	private File configFile;
+	private Properties properties;
 	
 	public LogAnalizerManager(){
 		this.logs = null;
-		this.configFile = null;
 		
 	}
-	public void setConfigFile(String value) {
-		this.configFile = new File(value);
+	public void setConfigFile(Properties properties) {
+		this.properties = properties;
 	}
 	
 	public synchronized void startAnalyzer() throws LogAnalyzerException{
@@ -143,14 +139,8 @@ public class LogAnalizerManager {
 	
 	private Map<String, FileLogAnalyzer> load() throws LogAnalyzerException{
 		try {
-			Properties prop = new Properties();
-	
-			try(BufferedReader br = new BufferedReader(new FileReader(configFile));) {
-				prop.load(br);
-			}
-	
 			ConfigurationParser cp = new ConfigurationParser();
-			return cp.parser(prop);
+			return cp.parser(properties);
 		}
 		catch(Throwable e) {
 			throw new LogAnalyzerException("fail to load config");

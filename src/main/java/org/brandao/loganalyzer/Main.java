@@ -11,44 +11,41 @@ import java.util.Set;
 
 public class Main {
 	
-	public static void main(String[] s) throws Throwable {
-		
-		Properties prop = getConfig(s);
-		String action   = getAction(s);
-		
-		LogAnalizerManager lam = new LogAnalizerManager();
-		lam.setConfigFile(s[1]);
+	private static MainConfig mainConfig;
+	
+	public static void main(String[] params) throws Throwable {
+		loadConfig(params);
+		executeAction(params);
+	}
 
-		ApplicationManager app = new ApplicationManager();
-		app.setManager(lam);
-
-		ApplicationManagerClient amc = new ApplicationManagerClient();
-		amc.setConfig(prop);
+	private static void loadConfig(String[] params) throws FileNotFoundException, IOException {
+		Properties prop = getConfig(params);
+		mainConfig = new MainConfig();
+		mainConfig.configure(prop);
+	}
+	
+	private static void executeAction(String[] params) throws IOException, LogAnalyzerException {
 		
-		ApplicationManagerServer ams = new ApplicationManagerServer();
-		ams.setConfig(prop);
-		ams.setManager(lam);
+		MainAction mainAction = new MainAction(mainConfig);
+		String action         = getAction(params);
 		
 		switch (action) {
 		case "start":
-			app.start();
-			ams.start();
+			mainAction.start();
 			break;
 		case "stop":
-			System.out.print("Sending stop signal...");
-			System.out.println(amc.stop()? "success" : "error");
+			mainAction.stop();
 			break;
 		case "reload":
-			System.out.print("Sending reload signal...");
-			System.out.println(amc.reload()? "success" : "error");
+			mainAction.reload();
 			break;
 		case "help":
-			printHelp();
+			mainAction.help();
 			break;
 		}
-		
 	}
-
+	
+	@SuppressWarnings("serial")
 	private static final Set<String> supportedActions = new HashSet<String>() {{
 		add("start");
 		add("stop");
@@ -72,22 +69,6 @@ public class Main {
 		return value;
 	}
 
-	private static void printHelp(){
-		System.out.println("Real time log analysis.");
-		System.out.println("");
-		System.out.println("loganalyzer <action> <config>");
-		System.out.println("");
-		System.out.println("\taction: execute an action.");
-		System.out.println("\t\tstart: start analysis.");
-		System.out.println("\t\tstop: stop analysis.");
-		System.out.println("\t\treload: reload configuration.");
-		System.out.println("");
-		System.out.println("\tconfig: configuration file path.");
-		System.out.println("");
-		System.out.println("\thelp: show this help.");
-		System.exit(0);
-	}
-	
 	private static Properties getConfig(String[] params) throws FileNotFoundException, IOException {
 		
 		String value = params == null || params.length < 2? null : params[1];
