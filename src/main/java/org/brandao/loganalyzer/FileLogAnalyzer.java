@@ -1,10 +1,8 @@
 package org.brandao.loganalyzer;
 
-import java.io.File;
-
 public interface FileLogAnalyzer {
 
-	void setLogFile(File file);
+	void setLogFile(String name);
 	
 	void addLogAnalyzer(String name, LogAnalyzer value);
 	

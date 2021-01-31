@@ -143,7 +143,7 @@ public class LogAnalizerManager {
 			return cp.parser(properties);
 		}
 		catch(Throwable e) {
-			throw new LogAnalyzerException("fail to load config");
+			throw new LogAnalyzerException("fail to load config", e);
 		}
 		
 	}

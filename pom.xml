@@ -30,7 +30,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>org.brandao.squid.autoblock.Main</mainClass>
+							<mainClass>org.brandao.loganalyzer.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -43,7 +43,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.brandao.squid.autoblock.Main</mainClass>
+							<mainClass>org.brandao.loganalyzer.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

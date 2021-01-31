@@ -1,6 +1,5 @@
 package org.brandao.loganalyzer;
 
-import java.io.File;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +30,7 @@ public class ConfigurationParser {
 
 		for(String fileID: filesID) {
 			FileLogAnalyzer fa = new DefaultFileLogAnalyzer();
-			fa.setLogFile(new File(value.getProperty(FILES_PREFIX + fileID)));
+			fa.setLogFile(value.getProperty(FILES_PREFIX + fileID));
 			r.put(fileID, fa);
 		}
 		
