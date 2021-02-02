@@ -93,6 +93,7 @@ public class DefaultFileLogAnalyzer implements FileLogAnalyzer{
 		if(newFile.length() < fileSize) {
 			buf.close();
 			buf = new BufferedReader(new FileReader(filePath));
+			fileSize = newFile.length();
         	System.out.println("Reopen file: " + filePath);
 		}
 		

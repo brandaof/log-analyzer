@@ -105,15 +105,15 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 					
 					Map<String, Object> supportedVars = new HashMap<>(vars);
 					String cmd = a.getExecutor().toString((Map<String, Object>)supportedVars);
-					System.out.println(cmd);
-					/*
+					//System.out.println(cmd);
+					
 					Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd});
 					try {
 						p.waitFor();
 					}
 					catch(Throwable e) {
 					}
-					*/
+					
 				}
 			}
 		}
