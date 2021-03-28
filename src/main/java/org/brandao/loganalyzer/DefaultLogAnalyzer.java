@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mvel2.MVEL;
 
@@ -15,9 +16,22 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 
 	private Map<String, VarLogParser> varLogParsers;
 	
+	private Map<String, VarMatch> varMatches;
+	
 	public DefaultLogAnalyzer() {
 		this.actions = new HashMap<>();
 		this.varLogParsers = new HashMap<>();
+		this.varMatches = new HashMap<>();
+	}
+	
+	@Override
+	public void addVarMatch(String name, VarMatch value) {
+		varMatches.put(name, value);
+	}
+
+	@Override
+	public void removeVarMatch(String name, VarMatch value) {
+		varMatches.remove(name);
 	}
 	
 	@Override
@@ -45,11 +59,14 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 		this.parser = value;
 	}
 	
-	private void parserVars(Map<String, String> vars, Map<String, String> r) {
+	private void parserVars(Map<String, Object> vars, Map<String, Object> r) {
 		vars.entrySet().stream().forEach(e->{
 			
+			if(!(e.getValue() instanceof String)) {
+				return;
+			}
 			String k = e.getKey();
-			String v = e.getValue();
+			String v = (String)e.getValue();
 			
 			if(r.containsKey(k)) {
 				return;
@@ -62,9 +79,9 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 			}
 			else {
 				try {
-				Map<String,String> newVars = parser.parser(v);
-				r.putAll(newVars);
-				parserVars(newVars, r);
+					Map<String,Object> newVars = parser.parser(v);
+					r.putAll(newVars);
+					parserVars(newVars, r);
 				}
 				catch(Throwable ex) {
 					throw new IllegalStateException("fail to parse " + k + "=" + v, ex);
@@ -80,8 +97,12 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 		if(parser.match(line)) {
 			line = line.replaceAll("\t+", " ").replaceAll("\\s+", " ");
 			
-			Map<String,String> tmpVars = parser.parser(line);
-			Map<String,String> vars = new HashMap<>();
+			Map<String,Object> tmpVars = parser.parser(line);
+			Map<String,Object> vars = new HashMap<>();
+
+			for(Entry<String, VarMatch> match: varMatches.entrySet()) {
+				vars.put(match.getKey(), match.getValue());
+			}
 			
 			try {
 				parserVars(tmpVars, vars);
@@ -90,6 +111,7 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 				throw new IllegalStateException("fail to parse the line: " + line, ex);
 			}
 			
+
 			for(Action a: actions.values()) {
 
 				Boolean r = MVEL.executeExpression(a.getExpression(), vars, Boolean.class);
@@ -103,9 +125,12 @@ public class DefaultLogAnalyzer implements LogAnalyzer {
 					vars.put("minute", String.valueOf(localDateTime.getMinute()));
 					vars.put("second", String.valueOf(localDateTime.getSecond()));
 					
-					Map<String, Object> supportedVars = new HashMap<>(vars);
-					String cmd = a.getExecutor().toString((Map<String, Object>)supportedVars);
-					//System.out.println(cmd);
+					//Map<String, Object> supportedVars = new HashMap<>(vars);
+					//String cmd = a.getExecutor().toString((Map<String, Object>)supportedVars);
+					
+					String cmd = a.getExecutor().toString(vars);
+					
+					System.out.println(cmd);
 					
 					Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd});
 					try {

@@ -6,6 +6,6 @@ public interface LineLogParser {
 
 	boolean match(String value);
 	
-	Map<String, String> parser(String line);
+	Map<String, Object> parser(String line);
 	
 }

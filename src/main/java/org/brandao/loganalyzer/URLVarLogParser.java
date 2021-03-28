@@ -7,10 +7,10 @@ import java.util.Map;
 public class URLVarLogParser implements VarLogParser{
 
 	@Override
-	public Map<String, String> parser(String value) {
+	public Map<String, Object> parser(String value) {
 		
 		try {
-			Map<String, String> map = new HashMap<String, String>();
+			Map<String, Object> map = new HashMap<String, Object>();
 			
 			if(value.matches("^.{1,}\\:\\/\\/.*")){
 				URL u = new URL(value);

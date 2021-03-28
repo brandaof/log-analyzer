@@ -1,13 +1,20 @@
 package org.brandao.loganalyzer;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.brandao.string.StringTemplate;
 import org.mvel2.MVEL;
@@ -62,6 +69,14 @@ public class ConfigurationParser {
 				VarLogParser varParser = getVarLogParserClass(varParserClass);
 				la.addVarParser(varParserID, varParser);
 			}
+
+			Set<String> listsID = getItens(value, ANALIZERS_PREFIX + analizerID + ".list.");
+			
+			for(String varParserID: listsID) {
+				String fileList    = value.getProperty(ANALIZERS_PREFIX + analizerID + ".list." + varParserID);
+				VarMatch varParser = getList(fileList);
+				la.addVarMatch(varParserID, varParser);
+			}
 			
 			FileLogAnalyzer fa = r.get(file);
 			
@@ -85,6 +100,19 @@ public class ConfigurationParser {
 		catch(Throwable e) {
 			throw new IllegalStateException(e);
 		}
+	}
+
+	private VarMatch getList(String file){
+		
+		List<String> list = new ArrayList<>();
+		
+		try (Stream<String> stream = Files.lines(Paths.get(file))) {
+            list = stream.collect(Collectors.toList());
+            return new ListMatches(list);
+        }
+		catch (IOException e) {
+			throw new IllegalStateException(e);
+        }
 	}
 	
 	@SuppressWarnings("unchecked")

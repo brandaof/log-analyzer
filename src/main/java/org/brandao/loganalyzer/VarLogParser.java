@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface VarLogParser {
 
-	Map<String,String> parser(String value);
+	Map<String,Object> parser(String value);
 	
 }

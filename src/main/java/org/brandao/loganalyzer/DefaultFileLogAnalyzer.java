@@ -68,8 +68,21 @@ public class DefaultFileLogAnalyzer implements FileLogAnalyzer{
 		buf = new BufferedReader(new FileReader(file));
 		fileSize = file.length();
     	System.out.println("opened file: " + filePath);
+    	System.out.println("file size: " + fileSize);
 	}
 
+	private boolean isNeedReopen() {
+		
+		File newFile = new File(filePath);
+		
+		if(newFile.length() >= fileSize) {
+			fileSize = newFile.length();
+			return false;
+		}
+
+		return true;
+	}
+	
 	private void closeBufferedReader() {
 		
 		try {
@@ -88,12 +101,9 @@ public class DefaultFileLogAnalyzer implements FileLogAnalyzer{
 	
 	private String readLine() throws IOException {
 		
-		File newFile = new File(filePath);
-		
-		if(newFile.length() < fileSize) {
-			buf.close();
-			buf = new BufferedReader(new FileReader(filePath));
-			fileSize = newFile.length();
+		if(isNeedReopen()) {
+			closeBufferedReader();
+			openBufferedReader();
         	System.out.println("Reopen file: " + filePath);
 		}
 		
@@ -102,9 +112,8 @@ public class DefaultFileLogAnalyzer implements FileLogAnalyzer{
 	
 	public void analyze0() throws FileNotFoundException, InterruptedException {
 
-		enabled = true;
-		
-        String line = null;
+		enabled      = true;
+        String line  = null;
         
         while (enabled) {
         	
